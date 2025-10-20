@@ -3,63 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Léon - Bienvenue dans ma bulle</title>
+    <title>Léon - Ma bulle</title>
     
-    <!-- Importation de la police depuis Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Début du CSS Interne -->
     <style>
+        /* Variables CSS (précédemment manquantes) */
         :root {
-            --bg-color: #2a2a2e; /* Gris chaud et très sombre */
-            --card-color: rgba(42, 42, 46, 0.85);
-            --border-color: rgba(255, 140, 66, 0.3); /* Orange pour les bordures */
-            --text-color: #e0e0e0;
-            --title-color: #ffffff;
-            --accent-color: #ff8c42; /* Orange chaleureux et confiant */
-            --accent-glow: rgba(255, 140, 66, 0.25);
-            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --card-color: rgba(25, 25, 30, 0.65);
+            --border-color: rgba(255, 255, 255, 0.15);
+            --title-color: #FFFFFF;
+            --text-color: #DDEEFF;
+            --accent-color: #FFAA55; /* Assorti à la nébuleuse */
+            --accent-glow: rgba(255, 170, 85, 0.3);
         }
 
-        /* --- Base & Effet de lueur en arrière-plan --- */
+        /* --- Styles du Fond (Fichier 1) --- */
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            line-height: 1.7;
             margin: 0;
-            padding: 60px 20px;
-            min-height: 100vh;
+            /* overflow: hidden; Supprimé pour permettre le scroll du contenu */
+            background-color: #000000;
+            cursor: none; /* Cache le curseur par défaut pour la traînée */
+            
+            /* Styles de la carte de contenu (Fichier 2) */
             display: flex;
-            align-items: center;
             justify-content: center;
-            overflow-x: hidden;
-            position: relative;
+            align-items: center;
+            min-height: 100vh;
+            padding: 50px 20px;
+            box-sizing: border-box; /* Bonne pratique */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            color: var(--text-color);
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 150%;
-            height: 150%;
-            background: radial-gradient(circle at 20% 20%, rgba(255, 140, 66, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 80% 70%, rgba(255, 180, 66, 0.15) 0%, transparent 40%);
-            transform: translate(-50%, -50%);
-            animation: softGlow 20s ease-in-out infinite;
-            z-index: -1;
+        canvas#starfield {
+            display: block;
+            position: fixed; /* Changé de absolute à fixed */
+            top: 0;
+            left: 0;
+            z-index: 1; /* Le canvas des étoiles est au-dessus du fond, sous le contenu */
+        }
+        
+        #nebula-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 15%, rgba(255, 120, 0, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 70% 80%, rgba(255, 170, 50, 0.5) 0%, transparent 45%),
+                radial-gradient(circle at 40% 60%, rgba(255, 100, 20, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 85% 25%, rgba(255, 140, 70, 0.35) 0%, transparent 35%);
+            background-size: 200% 200%;
+            animation: nebulaMove 40s ease-in-out infinite alternate;
+            z-index: 0; /* Le fond est tout derrière */
+            transition: transform 0.5s ease-out; /* Pour l'effet parallaxe */
+        }
+        
+        @keyframes nebulaMove {
+            from { background-position: 0% 0%; }
+            to { background-position: 100% 100%; }
         }
 
-        @keyframes softGlow {
-            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-            50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.1); }
-            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
-        }
 
-        /* --- Conteneur Principal --- */
+        /* --- Styles du Contenu (Fichier 2) --- */
         .container {
             max-width: 800px;
             width: 100%;
@@ -73,6 +79,9 @@
             animation: fadeIn 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
             opacity: 0;
             transform: translateY(20px);
+            position: relative; 
+            z-index: 2; /* S'assure que le contenu est au-dessus du fond ET du canvas */
+            cursor: default; /* Restaure le curseur sur la carte */
         }
 
         @keyframes fadeIn {
@@ -144,6 +153,7 @@
         .cube-item:hover {
             transform: translateY(-10px) scale(1.05);
             box-shadow: 0 10px 30px var(--accent-glow);
+            cursor: pointer; /* Curseur "main" au survol */
         }
         
         .cube-item .icon {
@@ -203,9 +213,11 @@
             h2 { font-size: 1.5rem; }
         }
     </style>
-    <!-- Fin du CSS Interne -->
 </head>
 <body>
+
+    <div id="nebula-background"></div>
+    <canvas id="starfield"></canvas>
 
     <div class="container">
         
@@ -235,7 +247,7 @@
                         <p>Les discussions qui commencent par "Imagine si..." et finissent à 3h du mat'. Sur la vie, l'univers ou la recette des crêpes.</p>
                     </div>
                     <div class="cube-item">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5h-2.25m-1.591 1.591L15 13.684m-5.834-5.834L7.586 6.166M3.75 10.5H6m1.591 1.591L9 13.684m-5.834 5.834l1.591-1.591M5.25 19.5h2.25" /></svg>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5h-2.25m-1.591 1.591L15 13.684m-5.834-5.834L7.586 6.166M3.75 10.A 6m1.591 1.591L9 13.684m-5.834 5.834l1.591-1.591M5.25 19.5h2.25" /></svg>
                         <h3>Plonger dans les histoires</h3>
                         <p>Un bon RPG, une série qui te retourne le cerveau, un film qui te fait pleurer... Je suis client pour me perdre dans d'autres univers.</p>
                     </div>
@@ -252,6 +264,15 @@
                     <li><strong>Mon objectif secret ?</strong> Laisser une trace positive, même toute petite, chez les gens que je croise.</li>
                 </ul>
             </section>
+            
+            <section class="section">
+                <h2>Ma petite philosophie</h2>
+                <ul class="faq-list">
+                    <li><strong>La curiosité avant le jugement :</strong> Je pense qu'il y a toujours quelque chose à apprendre de chaque personne et de chaque situation.</li>
+                    <li><strong>La simplicité est une force :</strong> Pas besoin de choses compliquées pour être heureux. Un bon moment, une discussion sincère, un paysage... ça suffit.</li>
+                    <li><strong>L'écoute plus que la parole :</strong> On découvre des mondes entiers juste en prenant le temps d'écouter vraiment ce que les autres ont à dire.</li>
+                </ul>
+            </section>
         </main>
 
         <footer>
@@ -260,6 +281,158 @@
 
     </div>
 
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const nebula = document.getElementById('nebula-background');
+        
+        let mouse = {
+            x: width / 2,
+            y: height / 2
+        };
+
+        const numStars = 500;
+        const stars = [];
+        const shootingStars = [];
+        const particles = [];
+
+        // --- Création des Étoiles ---
+        function createStar() {
+            return {
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5 + 0.5,
+                speed: Math.random() * 0.5 + 0.1,
+                opacity: Math.random(),
+                opacitySpeed: Math.random() * 0.02 - 0.01
+            };
+        }
+
+        // --- Création des Étoiles Filantes ---
+        function createShootingStar() {
+            shootingStars.push({
+                x: Math.random() * width + width / 2,
+                y: Math.random() * height / 4,
+                len: Math.random() * 80 + 10,
+                speed: Math.random() * 8 + 6,
+                opacity: 1
+            });
+        }
+
+        // --- Création des Particules de Souris ---
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 4 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = `rgba(255, 170, 85, ${Math.random()})`;
+                this.life = 1; // Commence à pleine vie
+                this.decay = 0.02; // Vitesse de disparition
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color.replace(/,\s*\d*\.?\d+\)$/, `, ${this.life})`); // Met à jour l'alpha
+                ctx.fill();
+            }
+        }
+        
+        // Initialisation du champ d'étoiles
+        for (let i = 0; i < numStars; i++) {
+            stars.push(createStar());
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Dessiner les étoiles fixes
+            stars.forEach(star => {
+                star.x -= star.speed;
+                if (star.x < 0) star.x = width;
+                star.opacity += star.opacitySpeed;
+                if (star.opacity <= 0 || star.opacity >= 1) star.opacitySpeed *= -1;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fill();
+            });
+
+            // Dessiner les étoiles filantes
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                const s = shootingStars[i];
+                s.x -= s.speed;
+                s.y += s.speed / 5; // Légère inclinaison
+                if (s.x < -s.len) {
+                    shootingStars.splice(i, 1);
+                } else {
+                    const gradient = ctx.createLinearGradient(s.x, s.y, s.x + s.len, s.y - s.len / 5);
+                    gradient.addColorStop(0, `rgba(255, 170, 85, ${s.opacity})`);
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(s.x + s.len, s.y - s.len/10);
+                    ctx.stroke();
+                }
+            }
+
+            // Dessiner les particules de la souris
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Gérer le redimensionnement
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            stars.length = 0;
+            for (let i = 0; i < numStars; i++) {
+                stars.push(createStar());
+            }
+        });
+
+        // Gérer le mouvement de la souris
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            const parallaxX = (mouse.x - width / 2) / 30;
+            const parallaxY = (mouse.y - height / 2) / 30;
+            nebula.style.transform = `translate(${-parallaxX}px, ${-parallaxY}px)`;
+            
+            // Créer une petite explosion de particules
+            for (let i = 0; i < 2; i++) {
+                particles.push(new Particle(mouse.x, mouse.y));
+            }
+        });
+        
+        // Créer une étoile filante de temps en temps
+        setInterval(createShootingStar, 3000);
+
+        // Lancer l'animation
+        draw();
+    </script>
 </body>
 </html>
-
