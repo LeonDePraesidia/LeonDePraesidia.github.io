@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Léon - Bienvenue dans ma bulle</title>
+    
+    <!-- Importation de la police depuis Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Début du CSS Interne -->
+    <style>
+        :root {
+            --bg-color: #2a2a2e; /* Gris chaud et très sombre */
+            --card-color: rgba(42, 42, 46, 0.85);
+            --border-color: rgba(255, 140, 66, 0.3); /* Orange pour les bordures */
+            --text-color: #e0e0e0;
+            --title-color: #ffffff;
+            --accent-color: #ff8c42; /* Orange chaleureux et confiant */
+            --accent-glow: rgba(255, 140, 66, 0.25);
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* --- Base & Effet de lueur en arrière-plan --- */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            line-height: 1.7;
+            margin: 0;
+            padding: 60px 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 140, 66, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 180, 66, 0.15) 0%, transparent 40%);
+            transform: translate(-50%, -50%);
+            animation: softGlow 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes softGlow {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.1); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+        }
+
+        /* --- Conteneur Principal --- */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 50px;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: fadeIn 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* --- En-tête --- */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--title-color);
+            margin: 0;
+            letter-spacing: -1.5px;
+        }
+
+        header p {
+            font-size: 1.3rem;
+            color: var(--accent-color);
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        /* --- Sections --- */
+        .section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--title-color);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        /* --- Introduction --- */
+        .intro-text {
+            font-size: 1.1rem;
+            text-align: center;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* --- Cubes animés --- */
+        .cubes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+        }
+        
+        .cube-item {
+            background-color: rgba(0,0,0,0.2);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+        
+        .cube-item:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+        
+        .cube-item .icon {
+            width: 48px;
+            height: 48px;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .cube-item h3 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--title-color);
+            margin: 0 0 10px 0;
+        }
+
+        .cube-item p {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: var(--text-color);
+            margin: 0;
+        }
+        
+        /* --- Mini FAQ --- */
+        .faq-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .faq-list li {
+            background-color: rgba(0,0,0,0.15);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .faq-list strong {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        /* --- Pied de page --- */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            body { padding: 40px 10px; }
+            .container { padding: 30px; }
+            header h1 { font-size: 2.8rem; }
+            header p { font-size: 1.15rem; }
+            h2 { font-size: 1.5rem; }
+        }
+    </style>
+    <!-- Fin du CSS Interne -->
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>Léon</h1>
+            <p>Bienvenue dans ma bulle.</p>
+        </header>
+
+        <main>
+            <section class="section">
+                <p class="intro-text">
+                    Je suis un observateur, un curieux, le genre de personne qui aime les discussions à voix basse et les grands paysages. Je viens de tourner une page importante de ma vie, et maintenant, j'ai juste envie de découvrir ce que la suivante me réserve, sans plan précis.
+                </p>
+            </section>
+
+            <section class="section">
+                <h2>Mes petits kifs</h2>
+                <div class="cubes-grid">
+                    <div class="cube-item">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
+                        <h3>S'oxygéner</h3>
+                        <p>Une rando de 5h ou une simple balade en forêt. C'est mon bouton "reset" pour me sentir tout petit face à l'immensité.</p>
+                    </div>
+                    <div class="cube-item">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
+                        <h3>Refaire le monde</h3>
+                        <p>Les discussions qui commencent par "Imagine si..." et finissent à 3h du mat'. Sur la vie, l'univers ou la recette des crêpes.</p>
+                    </div>
+                    <div class="cube-item">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5h-2.25m-1.591 1.591L15 13.684m-5.834-5.834L7.586 6.166M3.75 10.5H6m1.591 1.591L9 13.684m-5.834 5.834l1.591-1.591M5.25 19.5h2.25" /></svg>
+                        <h3>Plonger dans les histoires</h3>
+                        <p>Un bon RPG, une série qui te retourne le cerveau, un film qui te fait pleurer... Je suis client pour me perdre dans d'autres univers.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Quelques trucs en vrac</h2>
+                <ul class="faq-list">
+                    <li><strong>Un son qui me motive ?</strong> La bande originale d'Interstellar. Épique, tout simplement.</li>
+                    <li><strong>Mon plaisir (pas si) coupable ?</strong> Mettre du lait dans mon thé FROID. Oui, vous avez bien lu.</li>
+                    <li><strong>Le super-pouvoir que je voudrais ?</strong> Remonter le temps, juste pour voir comment les gens vivaient et discutaient avant.</li>
+                    <li><strong>Ce que j'apprends en ce moment ?</strong> À reconnaître les constellations. Pour l'instant, je ne vois que des points.</li>
+                    <li><strong>Mon objectif secret ?</strong> Laisser une trace positive, même toute petite, chez les gens que je croise.</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>Et toi, c'est quoi ton histoire ?</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
+
