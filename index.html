@@ -1,438 +1,840 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Léon - Ma bulle</title>
-    
-    <style>
-        /* Variables CSS (précédemment manquantes) */
-        :root {
-            --card-color: rgba(25, 25, 30, 0.65);
-            --border-color: rgba(255, 255, 255, 0.15);
-            --title-color: #FFFFFF;
-            --text-color: #DDEEFF;
-            --accent-color: #FFAA55; /* Assorti à la nébuleuse */
-            --accent-glow: rgba(255, 170, 85, 0.3);
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Léon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
 
-        /* --- Styles du Fond (Fichier 1) --- */
-        body {
-            margin: 0;
-            /* overflow: hidden; Supprimé pour permettre le scroll du contenu */
-            background-color: #000000;
-            cursor: none; /* Cache le curseur par défaut pour la traînée */
-            
-            /* Styles de la carte de contenu (Fichier 2) */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 50px 20px;
-            box-sizing: border-box; /* Bonne pratique */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            color: var(--text-color);
-        }
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        canvas#starfield {
-            display: block;
-            position: fixed; /* Changé de absolute à fixed */
-            top: 0;
-            left: 0;
-            z-index: 1; /* Le canvas des étoiles est au-dessus du fond, sous le contenu */
-        }
-        
-        #nebula-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 10% 15%, rgba(255, 120, 0, 0.4) 0%, transparent 40%),
-                radial-gradient(circle at 70% 80%, rgba(255, 170, 50, 0.5) 0%, transparent 45%),
-                radial-gradient(circle at 40% 60%, rgba(255, 100, 20, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 85% 25%, rgba(255, 140, 70, 0.35) 0%, transparent 35%);
-            background-size: 200% 200%;
-            animation: nebulaMove 40s ease-in-out infinite alternate;
-            z-index: 0; /* Le fond est tout derrière */
-            transition: transform 0.5s ease-out; /* Pour l'effet parallaxe */
-        }
-        
-        @keyframes nebulaMove {
-            from { background-position: 0% 0%; }
-            to { background-position: 100% 100%; }
-        }
+    :root {
+      --bg:      #07070a;
+      --surf:    rgba(255,255,255,0.03);
+      --border:  rgba(255,255,255,0.08);
+      --muted:   #50505f;
+      --text:    #b8b8cc;
+      --bright:  #eeeef8;
+      --gold:    #c8a86b;
+      --gold-bg: rgba(200,168,107,0.08);
+      --r:       16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #canvas {
+      position: fixed; inset: 0;
+      z-index: 0; pointer-events: none;
+    }
+
+    /* Nébuleuse CSS — couche atmosphérique */
+    #nebula {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .neb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px);
+      mix-blend-mode: screen;
+      animation: nebDrift linear infinite;
+      will-change: transform;
+    }
+    .neb1 {
+      width: 55vmax; height: 55vmax;
+      background: radial-gradient(circle, rgba(60,30,90,0.55) 0%, transparent 70%);
+      top: -15%; left: -10%;
+      animation-duration: 38s;
+      animation-delay: 0s;
+    }
+    .neb2 {
+      width: 45vmax; height: 45vmax;
+      background: radial-gradient(circle, rgba(15,40,80,0.5) 0%, transparent 70%);
+      top: 20%; right: -15%;
+      animation-duration: 52s;
+      animation-delay: -18s;
+    }
+    .neb3 {
+      width: 40vmax; height: 40vmax;
+      background: radial-gradient(circle, rgba(80,25,40,0.35) 0%, transparent 70%);
+      bottom: -10%; left: 20%;
+      animation-duration: 44s;
+      animation-delay: -9s;
+    }
+    .neb4 {
+      width: 30vmax; height: 30vmax;
+      background: radial-gradient(circle, rgba(30,60,50,0.3) 0%, transparent 70%);
+      top: 50%; left: 40%;
+      animation-duration: 60s;
+      animation-delay: -30s;
+    }
+    @keyframes nebDrift {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(3vw, 2vh) scale(1.05); }
+      66%  { transform: translate(-2vw, 4vh) scale(0.97); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.045;
+      pointer-events: none;
+    }
+
+    .page {
+      position: relative; z-index: 2;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 20px 100px;
+    }
+
+    @keyframes rise {
+      from { opacity:0; transform: translateY(20px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.on { opacity:1; transform: none; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100svh;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 60px 0 40px;
+    }
+
+    .hero-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem; letter-spacing: .22em;
+      color: var(--gold); text-transform: uppercase;
+      animation: rise .9s .1s both;
+    }
+
+    .hero-name {
+      font-size: clamp(4.5rem, 22vw, 7rem);
+      font-weight: 300; line-height: .88;
+      color: var(--bright); letter-spacing: -.02em;
+      margin: 16px 0 0;
+      animation: rise .9s .3s both;
+    }
+    .hero-name em { font-style: italic; color: var(--gold); }
+
+    .hero-phrase {
+      margin-top: 28px;
+      font-size: 1.15rem; font-style: italic;
+      font-weight: 300; color: var(--muted);
+      min-height: 2.4em;
+      animation: rise .9s .55s both;
+    }
+
+    .hero-scroll {
+      margin-top: 48px;
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem; color: var(--muted);
+      letter-spacing: .12em;
+      display: flex; align-items: center; gap: 12px;
+      animation: rise .9s .8s both;
+    }
+    .hero-scroll::before {
+      content: ''; display: block;
+      width: 28px; height: 1px; background: var(--muted);
+    }
+
+    /* ── SÉPARATEUR ── */
+    .sep { width: 100%; height: 1px; background: var(--border); margin: 64px 0; }
+
+    .sec-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .66rem; letter-spacing: .22em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    /* ── INTRO ── */
+    .intro {
+      font-size: 1.35rem; font-weight: 300;
+      line-height: 1.65; color: var(--bright);
+    }
+    .intro em { color: var(--gold); font-style: italic; }
+
+    /* ── KIFS ── */
+    .kifs { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+
+    .kif {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 20px;
+      display: flex; align-items: flex-start; gap: 16px;
+      transition: border-color .3s, background .3s;
+    }
+    .kif:hover, .kif:active {
+      border-color: rgba(200,168,107,.3);
+      background: var(--gold-bg);
+    }
+    .kif-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
+    .kif-title { font-size: 1.05rem; font-weight: 400; color: var(--bright); margin-bottom: 4px; }
+    .kif-text { font-size: .95rem; color: var(--text); font-weight: 300; }
 
 
-        /* --- Styles du Contenu (Fichier 2) --- */
-        .container {
-            max-width: 800px;
-            width: 100%;
-            padding: 50px;
-            background: var(--card-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            animation: fadeIn 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
-            position: relative; 
-            z-index: 2; /* S'assure que le contenu est au-dessus du fond ET du canvas */
-            cursor: default; /* Restaure le curseur sur la carte */
-        }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* --- En-tête --- */
-        header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
+    /* ── 2 VRAIS 1 FAUX ── */
+    .tvf-list { display: flex; flex-direction: column; gap: 8px; }
 
-        header h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: var(--title-color);
-            margin: 0;
-            letter-spacing: -1.5px;
-        }
+    .tvf-opt {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex; align-items: flex-start; gap: 14px;
+      color: var(--text);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; text-align: left;
+      cursor: pointer; width: 100%;
+      transition: border-color .25s, background .25s, color .25s;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 1.5;
+    }
+    .tvf-opt:hover, .tvf-opt:active {
+      border-color: rgba(200,168,107,.45);
+      background: var(--gold-bg); color: var(--bright);
+    }
+    .tvf-opt.correct {
+      border-color: #6bcf8a;
+      background: rgba(107,207,138,0.08);
+      color: #6bcf8a;
+    }
+    .tvf-opt.wrong {
+      border-color: #cf6b6b;
+      background: rgba(207,107,107,0.08);
+      color: #cf6b6b;
+    }
+    .tvf-opt.true-one {
+      border-color: rgba(200,168,107,.3);
+      background: var(--gold-bg);
+      color: var(--text);
+    }
+    .tvf-num {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem; color: var(--gold);
+      flex-shrink: 0; margin-top: 3px;
+      letter-spacing: .05em;
+    }
+    .tvf-opt.correct .tvf-num { color: #6bcf8a; }
+    .tvf-opt.wrong .tvf-num { color: #cf6b6b; }
 
-        header p {
-            font-size: 1.3rem;
-            color: var(--accent-color);
-            margin-top: 10px;
-            font-weight: 400;
-        }
+    .tvf-result { display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .tvf-result.show { display: block; }
 
-        /* --- Sections --- */
-        .section {
-            margin-bottom: 50px;
-        }
+    .tvf-verdict {
+      font-size: 1.3rem; font-weight: 300;
+      color: var(--bright); margin-bottom: 8px;
+    }
+    .tvf-verdict em { font-style: italic; }
+    .tvf-detail {
+      font-size: .95rem; color: var(--muted);
+      margin-bottom: 16px; font-weight: 300;
+    }
+    .tvf-mp {
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem; color: var(--gold);
+      letter-spacing: .06em;
+      padding: 12px 16px;
+      border: 1px solid rgba(200,168,107,.2);
+      border-radius: 8px;
+      background: var(--gold-bg);
+    }
 
-        h2 {
-            font-size: 1.8rem;
-            font-weight: 500;
-            color: var(--title-color);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        /* --- Introduction --- */
-        .intro-text {
-            font-size: 1.1rem;
-            text-align: center;
-            font-weight: 300;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        /* --- Cubes animés --- */
-        .cubes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 25px;
-        }
-        
-        .cube-item {
-            background-color: rgba(0,0,0,0.2);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            text-align: center;
-        }
-        
-        .cube-item:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 10px 30px var(--accent-glow);
-            cursor: pointer; /* Curseur "main" au survol */
-        }
-        
-        .cube-item .icon {
-            width: 48px;
-            height: 48px;
-            color: var(--accent-color);
-            margin-bottom: 15px;
-        }
+    /* ── EN VRAC ── */
+    .vrac { display: flex; flex-direction: column; }
+    .vrac-item { padding: 18px 0; border-bottom: 1px solid var(--border); }
+    .vrac-item:first-child { border-top: 1px solid var(--border); }
+    .vrac-key {
+      font-family: 'DM Mono', monospace;
+      font-size: .66rem; color: var(--gold);
+      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .vrac-val { font-size: 1rem; color: var(--text); font-weight: 300; }
+    .vrac-val em { color: var(--bright); font-style: normal; }
 
-        .cube-item h3 {
-            font-size: 1.25rem;
-            font-weight: 500;
-            color: var(--title-color);
-            margin: 0 0 10px 0;
-        }
+    /* ── SUJET DU MOMENT ── */
+    .sujet-block {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px 20px;
+      transition: border-color .3s;
+    }
+    .sujet-block:hover { border-color: rgba(200,168,107,.3); }
+    .sujet-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: .64rem; color: var(--gold);
+      letter-spacing: .14em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .sujet-text {
+      font-size: 1.2rem; color: var(--bright);
+      font-weight: 300; line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    .sujet-text em { color: var(--gold); font-style: italic; }
+    .sujet-sub {
+      font-size: .88rem; color: var(--muted); font-weight: 300;
+    }
+    .sujet-small { background: rgba(200,168,107,0.04); }
 
-        .cube-item p {
-            font-size: 0.95rem;
-            font-weight: 300;
-            color: var(--text-color);
-            margin: 0;
-        }
-        
-        /* --- Mini FAQ --- */
-        .faq-list {
-            list-style: none;
-            padding-left: 0;
-        }
+    /* ── CTA FINAL ── */
+    .cta-block {
+      background: var(--surf);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px 24px; text-align: center;
+    }
+    .cta-question {
+      font-size: 1.45rem; font-style: italic;
+      font-weight: 300; color: var(--bright);
+      margin-bottom: 8px; line-height: 1.4;
+    }
+    .cta-question em { color: var(--gold); }
+    .cta-sub {
+      font-size: .85rem; color: var(--muted);
+      margin-bottom: 28px;
+      font-family: 'DM Mono', monospace; letter-spacing: .06em;
+    }
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--gold-bg);
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 14px 24px;
+      color: var(--gold);
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem; letter-spacing: .1em;
+      cursor: pointer;
+      transition: background .3s, color .3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .copy-btn:hover, .copy-btn:active { background: var(--gold); color: var(--bg); }
+    .copy-feedback {
+      margin-top: 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem; color: var(--muted); letter-spacing: .1em;
+      min-height: 1em; transition: opacity .3s;
+    }
 
-        .faq-list li {
-            background-color: rgba(0,0,0,0.15);
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-        }
-        
-        .faq-list strong {
-            color: var(--accent-color);
-            font-weight: 500;
-        }
+    .msg-example {
+      margin-top: 20px;
+      font-size: .85rem; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: .04em; line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .msg-example em { color: var(--text); font-style: normal; }
 
-        /* --- Pied de page --- */
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--accent-color);
-        }
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 80px; text-align: center;
+      border-top: 1px solid var(--border); padding-top: 32px;
+    }
+    .foot-name {
+      font-size: 4.5rem; font-weight: 300;
+      color: rgba(255,255,255,.04); letter-spacing: -.02em; user-select: none;
+    }
+    .foot-mono {
+      font-family: 'DM Mono', monospace;
+      font-size: .62rem; color: var(--muted); letter-spacing: .12em; margin-top: -10px;
+    }
 
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            body { padding: 40px 10px; }
-            .container { padding: 30px; }
-            header h1 { font-size: 2.8rem; }
-            header p { font-size: 1.15rem; }
-            h2 { font-size: 1.5rem; }
-        }
-    </style>
+    /* ── RESPONSIVE PC ── */
+    @media (min-width: 640px) {
+      .page { padding: 0 32px 120px; }
+      .hero-name { font-size: clamp(5rem, 14vw, 8.5rem); }
+      .kifs { display: grid; grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-    <div id="nebula-background"></div>
-    <canvas id="starfield"></canvas>
+<canvas id="canvas"></canvas>
 
-    <div class="container">
-        
-        <header>
-            <h1>Léon</h1>
-            <p>Bienvenue dans ma bulle.</p>
-        </header>
+<div id="nebula">
+  <div class="neb neb1"></div>
+  <div class="neb neb2"></div>
+  <div class="neb neb3"></div>
+  <div class="neb neb4"></div>
+</div>
 
-        <main>
-            <section class="section">
-                <p class="intro-text">
-                    Je suis un observateur, un curieux, le genre de personne qui aime les discussions à voix basse et les grands paysages. Je viens de tourner une page importante de ma vie, et maintenant, j'ai juste envie de découvrir ce que la suivante me réserve, sans plan précis.
-                </p>
-            </section>
+<div class="page">
 
-            <section class="section">
-                <h2>Mes petits kifs</h2>
-                <div class="cubes-grid">
-                    <div class="cube-item">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
-                        <h3>S'oxygéner</h3>
-                        <p>Une rando de 5h ou une simple balade en forêt. C'est mon bouton "reset" pour me sentir tout petit face à l'immensité.</p>
-                    </div>
-                    <div class="cube-item">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
-                        <h3>Refaire le monde</h3>
-                        <p>Les discussions qui commencent par "Imagine si..." et finissent à 3h du mat'. Sur la vie, l'univers ou la recette des crêpes.</p>
-                    </div>
-                    <div class="cube-item">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 10.5h-2.25m-1.591 1.591L15 13.684m-5.834-5.834L7.586 6.166M3.75 10.A 6m1.591 1.591L9 13.684m-5.834 5.834l1.591-1.591M5.25 19.5h2.25" /></svg>
-                        <h3>Plonger dans les histoires</h3>
-                        <p>Un bon RPG, une série qui te retourne le cerveau, un film qui te fait pleurer... Je suis client pour me perdre dans d'autres univers.</p>
-                    </div>
-                </div>
-            </section>
+  <section class="hero">
+    <span class="hero-label">Profil Discord — MP ouverts</span>
+    <h1 class="hero-name">Lé<em>on</em></h1>
+    <p class="hero-phrase" id="heroPhrase"></p>
+    <div class="hero-scroll">Descends</div>
+  </section>
 
-            <section class="section">
-                <h2>Quelques trucs en vrac</h2>
-                <ul class="faq-list">
-                    <li><strong>Un son qui me motive ?</strong> La bande originale d'Interstellar. Épique, tout simplement.</li>
-                    <li><strong>Mon plaisir (pas si) coupable ?</strong> Mettre du lait dans mon thé FROID. Oui, vous avez bien lu.</li>
-                    <li><strong>Le super-pouvoir que je voudrais ?</strong> Remonter le temps, juste pour voir comment les gens vivaient et discutaient avant.</li>
-                    <li><strong>Ce que j'apprends en ce moment ?</strong> À reconnaître les constellations. Pour l'instant, je ne vois que des points.</li>
-                    <li><strong>Mon objectif secret ?</strong> Laisser une trace positive, même toute petite, chez les gens que je croise.</li>
-                </ul>
-            </section>
-            
-            <section class="section">
-                <h2>Ma petite philosophie</h2>
-                <ul class="faq-list">
-                    <li><strong>La curiosité avant le jugement :</strong> Je pense qu'il y a toujours quelque chose à apprendre de chaque personne et de chaque situation.</li>
-                    <li><strong>La simplicité est une force :</strong> Pas besoin de choses compliquées pour être heureux. Un bon moment, une discussion sincère, un paysage... ça suffit.</li>
-                    <li><strong>L'écoute plus que la parole :</strong> On découvre des mondes entiers juste en prenant le temps d'écouter vraiment ce que les autres ont à dire.</li>
-                </ul>
-            </section>
-        </main>
+  <div class="sep"></div>
+  <section>
+    <div class="sec-label reveal">01 — Qui je suis</div>
+    <p class="intro reveal">
+      Je suis quelqu'un d'assez calme.<br>
+      J'aime discuter longtemps, marcher en montagne<br>
+      et apprendre des choses inutiles — <em>comme les constellations</em>.<br>
+      J'écoute aussi beaucoup les gens raconter leurs histoires.
+    </p>
+  </section>
 
-        <footer>
-            <p>Et toi, c'est quoi ton histoire ?</p>
-        </footer>
+  <div class="sep"></div>
+  <section class="reveal">
+    <div class="sec-label">02 — Deux sont vraies. Une est fausse.</div>
+    <div class="quiz-wrap">
+      <div class="quiz-header">
+        <div class="quiz-dot"></div>
+        <div>
+          <p>Devine laquelle est fausse.</p>
+          <small>une seule tentative · pas de triche</small>
+        </div>
+      </div>
+      <div class="quiz-body">
 
+        <div class="tvf-list" id="tvfList">
+          <button class="tvf-opt" data-index="0">
+            <span class="tvf-num">1</span>
+            <span class="tvf-text">J'ai déjà perdu une chaussure en montagne et failli perdre un pied à cause du froid. 🥶</span>
+          </button>
+          <button class="tvf-opt" data-index="1">
+            <span class="tvf-num">2</span>
+            <span class="tvf-text">Je me suis déjà retrouvé bloqué en montagne et secouru par des techniciens de remontées mécaniques. 🚠</span>
+          </button>
+          <button class="tvf-opt" data-index="2">
+            <span class="tvf-num">3</span>
+            <span class="tvf-text">Je me suis déjà fait charger par un bouquetin. 🐐</span>
+          </button>
+        </div>
+
+        <div class="tvf-result" id="tvfResult">
+          <div class="tvf-verdict" id="tvfVerdict"></div>
+          <div class="tvf-detail" id="tvfDetail"></div>
+          <div class="tvf-mp">La vraie histoire derrière, c'est en MP que je la raconte. 👋</div>
+        </div>
+
+      </div>
     </div>
+  </section>
 
-    <script>
-        const canvas = document.getElementById('starfield');
-        const ctx = canvas.getContext('2d');
+  <div class="sep"></div>
+  <section>
+    <div class="sec-label reveal">03 — Ce qui me fait vibrer</div>
+    <div class="kifs reveal">
+      <div class="kif">
+        <div class="kif-icon">🏔</div>
+        <div>
+          <div class="kif-title">S'oxygéner</div>
+          <div class="kif-text">Une rando de 5h, sentier boueux, zéro réseau. Mon bouton reset. Je reviens toujours un peu différent.</div>
+        </div>
+      </div>
+      <div class="kif">
+        <div class="kif-icon">✦</div>
+        <div>
+          <div class="kif-title">Lire les étoiles</div>
+          <div class="kif-text">J'apprends les constellations. Pour l'instant je vois surtout des points. Mais l'ordre caché là-dedans m'obsède.</div>
+        </div>
+      </div>
+      <div class="kif">
+        <div class="kif-icon">💬</div>
+        <div>
+          <div class="kif-title">Refaire le monde</div>
+          <div class="kif-text">Conversations qui commencent par "imagine si..." et finissent à 3h du mat'. Sur la vie, l'univers ou les crêpes.</div>
+        </div>
+      </div>
+      <div class="kif">
+        <div class="kif-icon">🎮</div>
+        <div>
+          <div class="kif-title">Habiter des histoires</div>
+          <div class="kif-text">RPG, films qui te retournent. Je suis du genre à lire les journaux de PNJ morts depuis 200 ans dans le jeu.</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+  <div class="sep"></div>
+  <section>
+    <div class="sec-label reveal">04 — En vrac</div>
+    <div class="vrac reveal">
+      <div class="vrac-item">
+        <div class="vrac-key">Un son qui m'emmène loin</div>
+        <div class="vrac-val">La BO d'Interstellar. Joue-la à fond dans des écouteurs et dis-moi que t'es pas différent après.</div>
+      </div>
+      <div class="vrac-item">
+        <div class="vrac-key">Mon truc bizarre assumé</div>
+        <div class="vrac-val">Lait dans le thé <em>froid</em>. Je sais. Mais t'as pas essayé.</div>
+      </div>
+      <div class="vrac-item">
+        <div class="vrac-key">Ce que j'apprendrais en remontant le temps</div>
+        <div class="vrac-val">Comment les gens parlaient autour d'un feu, avant les écrans. Je pense qu'on avait quelque chose qu'on a perdu.</div>
+      </div>
+      <div class="vrac-item">
+        <div class="vrac-key">Mon objectif discret</div>
+        <div class="vrac-val">Laisser une trace positive, même toute petite, chez les gens que je croise. <em>C'est ça mon vrai projet.</em></div>
+      </div>
+      <div class="vrac-item">
+        <div class="vrac-key">Ce que je cherche ici</div>
+        <div class="vrac-val">Discuter avec des gens intéressants. Parfois dans les channels, <em>souvent en MP.</em></div>
+      </div>
+    </div>
+  </section>
 
-        const nebula = document.getElementById('nebula-background');
-        
-        let mouse = {
-            x: width / 2,
-            y: height / 2
-        };
+  <div class="sep"></div>
 
-        const numStars = 500;
-        const stars = [];
-        const shootingStars = [];
-        const particles = [];
+  <!-- ── AVATAR ── -->
+  <section class="reveal" style="text-align:center; margin-bottom: -20px;">
+    <div style="display:inline-block; position:relative;">
+      <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="44" cy="44" r="43" stroke="rgba(200,168,107,0.25)" stroke-width="1"/>
+        <circle cx="44" cy="33" r="14" fill="rgba(200,168,107,0.15)" stroke="rgba(200,168,107,0.4)" stroke-width="1"/>
+        <path d="M16 74c0-15.464 12.536-28 28-28s28 12.536 28 28" stroke="rgba(200,168,107,0.4)" stroke-width="1" fill="rgba(200,168,107,0.08)"/>
+        <!-- étoile discrète -->
+        <path d="M44 8 L45.2 11.6 L49 11.6 L46 13.8 L47.2 17.4 L44 15.2 L40.8 17.4 L42 13.8 L39 11.6 L42.8 11.6 Z" fill="rgba(200,168,107,0.5)"/>
+      </svg>
+    </div>
+  </section>
 
-        // --- Création des Étoiles ---
-        function createStar() {
-            return {
-                x: Math.random() * width,
-                y: Math.random() * height,
-                radius: Math.random() * 1.5 + 0.5,
-                speed: Math.random() * 0.5 + 0.1,
-                opacity: Math.random(),
-                opacitySpeed: Math.random() * 0.02 - 0.01
-            };
-        }
+  <!-- ── SUJET DU MOMENT ── -->
+  <div class="sep"></div>
+  <section class="reveal">
+    <div class="sec-label">05 — Sujet du moment</div>
+    <div class="sujet-block">
+      <div class="sujet-tag">Question ouverte</div>
+      <div class="sujet-text">Quelle est la dernière chose qui t'a <em>vraiment fasciné</em> ?</div>
+      <div class="sujet-sub">Un truc que t'as regardé, lu, entendu — et qui t'a fait penser pendant 3 jours.</div>
+    </div>
+  </section>
 
-        // --- Création des Étoiles Filantes ---
-        function createShootingStar() {
-            shootingStars.push({
-                x: Math.random() * width + width / 2,
-                y: Math.random() * height / 4,
-                len: Math.random() * 80 + 10,
-                speed: Math.random() * 8 + 6,
-                opacity: 1
-            });
-        }
+  <!-- ── SUJET ORION ── -->
+  <div style="margin-top: 12px;" class="reveal">
+    <div class="sujet-block sujet-small">
+      <div class="sujet-tag">Je cherche quelqu'un pour m'expliquer</div>
+      <div class="sujet-text" style="font-size:1rem;">Pourquoi Orion est visible en hiver et pas en été.</div>
+      <div class="sujet-sub">J'ai cherché. J'ai compris à moitié. C'est flou.</div>
+    </div>
+  </div>
 
-        // --- Création des Particules de Souris ---
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = Math.random() * 4 + 1;
-                this.speedX = Math.random() * 3 - 1.5;
-                this.speedY = Math.random() * 3 - 1.5;
-                this.color = `rgba(255, 170, 85, ${Math.random()})`;
-                this.life = 1; // Commence à pleine vie
-                this.decay = 0.02; // Vitesse de disparition
-            }
+  <div class="sep"></div>
+  <div class="cta-block reveal">
+    <div class="cta-question">Si t'es arrivé jusqu'ici,<br>on aura sûrement <em>des choses à se dire.</em></div>
+    <div class="cta-sub">MP ouverts — même juste pour dire bonjour.</div>
+    <button class="copy-btn" id="copyBtn">
+      <span>◎</span>
+      <span id="copyText">Copier mon pseudo Discord</span>
+    </button>
+    <div class="copy-feedback" id="copyFeedback"></div>
+    <div class="msg-example">exemple de premier message :<br><em>"Salut, je viens du site. La dernière chose qui m'a fasciné c'est…"</em></div>
+  </div>
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= this.decay;
-            }
+  <footer class="reveal">
+    <div class="foot-name">Léon</div>
+    <div class="foot-mono">— quelque part entre la forêt et les étoiles —</div>
+  </footer>
 
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color.replace(/,\s*\d*\.?\d+\)$/, `, ${this.life})`); // Met à jour l'alpha
-                ctx.fill();
-            }
-        }
-        
-        // Initialisation du champ d'étoiles
-        for (let i = 0; i < numStars; i++) {
-            stars.push(createStar());
-        }
+</div>
 
-        function draw() {
-            ctx.clearRect(0, 0, width, height);
+<script>
+/* ── CANVAS ÉTOILES ── */
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W, H, stars = [], shooters = [], orionPts = [], t = 0;
 
-            // Dessiner les étoiles fixes
-            stars.forEach(star => {
-                star.x -= star.speed;
-                if (star.x < 0) star.x = width;
-                star.opacity += star.opacitySpeed;
-                if (star.opacity <= 0 || star.opacity >= 1) star.opacitySpeed *= -1;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-                ctx.fill();
-            });
+// Parallaxe souris / gyro
+let mx = 0, my = 0;
+window.addEventListener('mousemove', e => {
+  mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+  my = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+if (window.DeviceOrientationEvent) {
+  window.addEventListener('deviceorientation', e => {
+    mx = (e.gamma || 0) / 30;
+    my = (e.beta  || 0) / 60 - 0.3;
+  });
+}
 
-            // Dessiner les étoiles filantes
-            for (let i = shootingStars.length - 1; i >= 0; i--) {
-                const s = shootingStars[i];
-                s.x -= s.speed;
-                s.y += s.speed / 5; // Légère inclinaison
-                if (s.x < -s.len) {
-                    shootingStars.splice(i, 1);
-                } else {
-                    const gradient = ctx.createLinearGradient(s.x, s.y, s.x + s.len, s.y - s.len / 5);
-                    gradient.addColorStop(0, `rgba(255, 170, 85, ${s.opacity})`);
-                    gradient.addColorStop(1, 'transparent');
-                    ctx.strokeStyle = gradient;
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(s.x, s.y);
-                    ctx.lineTo(s.x + s.len, s.y - s.len/10);
-                    ctx.stroke();
-                }
-            }
+// Constellation Orion — coordonnées normalisées (0–1)
+const ORION_RAW = [
+  // épaules
+  [0.30, 0.25], [0.72, 0.20],
+  // ceinture (Alnitak, Alnilam, Mintaka)
+  [0.35, 0.50], [0.50, 0.48], [0.65, 0.46],
+  // pieds
+  [0.22, 0.78], [0.68, 0.73],
+  // tête (Meissa)
+  [0.50, 0.08],
+];
+const ORION_LINES = [
+  [7,0],[7,1],           // tête→épaules
+  [0,2],[1,4],           // épaules→ceinture
+  [2,3],[3,4],           // ceinture
+  [2,6],[4,5],           // ceinture→pieds (croisé)
+];
 
-            // Dessiner les particules de la souris
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.update();
-                p.draw();
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
 
-            requestAnimationFrame(draw);
-        }
+  // 3 couches d'étoiles (profondeur z=1..3)
+  stars = [];
+  [380, 160, 60].forEach((count, layer) => {
+    for (let i = 0; i < count; i++) {
+      const z = layer + 1; // 1=lointain, 3=proche
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: (Math.random() * 0.8 + 0.2) * z * 0.6,
+        a: Math.random(),
+        da: (Math.random() * .005 + .001) * (Math.random() < .5 ? 1 : -1),
+        z,
+        hue: Math.random() < .15
+          ? (Math.random() < .5 ? '200,220,255' : '255,220,180')  // bleues ou orangées
+          : '210,200,185',  // blanches neutres
+        px: 0, py: 0, // positions calculées avec parallaxe
+      });
+    }
+  });
 
-        // Gérer le redimensionnement
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            stars.length = 0;
-            for (let i = 0; i < numStars; i++) {
-                stars.push(createStar());
-            }
+  // Orion dans le coin supérieur droit — discret
+  orionPts = ORION_RAW.map(([nx, ny]) => ({
+    x: W * (0.62 + nx * 0.32),
+    y: H * (0.04 + ny * 0.28),
+  }));
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Étoiles filantes
+setInterval(() => {
+  if (document.hidden) return;
+  const n = 1 + (Math.random() < .3 ? 1 : 0); // parfois 2 simultanées
+  for (let i = 0; i < n; i++) {
+    shooters.push({
+      x:   W * (0.4 + Math.random() * 0.6),
+      y:   Math.random() * H * 0.4,
+      len: 80 + Math.random() * 140,
+      spd: 7 + Math.random() * 8,
+      a:   0.9 + Math.random() * 0.1,
+      w:   1.2 + Math.random() * 1.2,
+      hue: Math.random() < .4 ? '180,200,255' : '200,168,107',
+    });
+  }
+}, 3800);
+
+let orionPulse = 0;
+
+(function loop() {
+  if (!document.hidden) {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.008;
+    orionPulse += 0.012;
+
+    // ── Étoiles avec parallaxe par couche ──
+    stars.forEach(s => {
+      const px = mx * s.z * 6;
+      const py = my * s.z * 4;
+      const sx = (s.x + px + W) % W;
+      const sy = (s.y + py + H) % H;
+
+      s.a += s.da;
+      if (s.a <= 0 || s.a >= 1) s.da *= -1;
+
+      // Éclat des étoiles proches (z=3)
+      if (s.z === 3 && s.a > 0.75) {
+        // Rayons en croix
+        const ra = s.r * 3.5 * s.a;
+        const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, ra * 2);
+        glow.addColorStop(0, `rgba(${s.hue},${s.a * 0.25})`);
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(sx, sy, ra * 2, 0, Math.PI * 2); ctx.fill();
+
+        // diffraction spike
+        ctx.save();
+        ctx.globalAlpha = s.a * 0.15;
+        ctx.strokeStyle = `rgba(${s.hue},1)`;
+        ctx.lineWidth = 0.5;
+        [0, Math.PI/2].forEach(angle => {
+          ctx.beginPath();
+          ctx.moveTo(sx - Math.cos(angle) * ra, sy - Math.sin(angle) * ra);
+          ctx.lineTo(sx + Math.cos(angle) * ra, sy + Math.sin(angle) * ra);
+          ctx.stroke();
         });
+        ctx.restore();
+      }
 
-        // Gérer le mouvement de la souris
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
+      ctx.beginPath();
+      ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.hue},${s.a * (0.4 + s.z * 0.18)})`;
+      ctx.fill();
+    });
 
-            const parallaxX = (mouse.x - width / 2) / 30;
-            const parallaxY = (mouse.y - height / 2) / 30;
-            nebula.style.transform = `translate(${-parallaxX}px, ${-parallaxY}px)`;
-            
-            // Créer une petite explosion de particules
-            for (let i = 0; i < 2; i++) {
-                particles.push(new Particle(mouse.x, mouse.y));
-            }
-        });
-        
-        // Créer une étoile filante de temps en temps
-        setInterval(createShootingStar, 3000);
+    // ── Constellation Orion ──
+    const oAlpha = 0.12 + Math.sin(orionPulse) * 0.04;
 
-        // Lancer l'animation
-        draw();
-    </script>
+    // Lignes
+    ctx.save();
+    ctx.strokeStyle = `rgba(200,168,107,${oAlpha * 0.7})`;
+    ctx.lineWidth = 0.6;
+    ctx.setLineDash([2, 4]);
+    ORION_LINES.forEach(([a, b]) => {
+      ctx.beginPath();
+      ctx.moveTo(orionPts[a].x, orionPts[a].y);
+      ctx.lineTo(orionPts[b].x, orionPts[b].y);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // Points de la constellation
+    orionPts.forEach((p, i) => {
+      // Ceinture = plus lumineuse
+      const isBelt = i >= 2 && i <= 4;
+      const r  = isBelt ? 1.8 : 1.2;
+      const al = isBelt ? oAlpha * 2.2 : oAlpha * 1.4;
+
+      // Halo doux
+      const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 5);
+      glow.addColorStop(0, `rgba(200,168,107,${al * 0.5})`);
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(p.x, p.y, r * 5, 0, Math.PI * 2); ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(230,200,140,${al})`;
+      ctx.fill();
+    });
+
+    // ── Étoiles filantes ──
+    for (let i = shooters.length - 1; i >= 0; i--) {
+      const s = shooters[i];
+      s.x -= s.spd;
+      s.y += s.spd * 0.3;
+      s.a -= 0.013;
+      if (s.a <= 0 || s.x < -s.len) { shooters.splice(i, 1); continue; }
+
+      // Traîne avec éclat en tête
+      const g = ctx.createLinearGradient(s.x, s.y, s.x + s.len, s.y - s.len * 0.3);
+      g.addColorStop(0, `rgba(${s.hue},${s.a})`);
+      g.addColorStop(0.3, `rgba(${s.hue},${s.a * 0.5})`);
+      g.addColorStop(1, 'transparent');
+      ctx.strokeStyle = g;
+      ctx.lineWidth = s.w;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x + s.len, s.y - s.len * 0.3);
+      ctx.stroke();
+
+      // Éclat en tête de l'étoile filante
+      const head = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.w * 4);
+      head.addColorStop(0, `rgba(255,240,220,${s.a * 0.9})`);
+      head.addColorStop(1, 'transparent');
+      ctx.fillStyle = head;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.w * 4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ── PHRASE ALÉATOIRE ── */
+const phrases = [
+  "Je lis les ciels le soir et les silences entre les mots.",
+  "Observateur. Curieux. Quelque part entre la forêt et les étoiles.",
+  "Je viens de tourner une page. La suivante, je la lis au fur et à mesure.",
+  "J'apprends les constellations. Pour l'instant je vois des points.",
+  "Les meilleures discussions commencent à des heures impossibles.",
+  "Je cherche pas des followers. Je cherche des vraies conversations.",
+];
+document.getElementById('heroPhrase').textContent = phrases[Math.floor(Math.random() * phrases.length)];
+
+
+/* ── 2 VRAIS 1 FAUX ── */
+// index 2 = le faux (le bouquetin)
+const FALSE_INDEX = 2;
+const tvfMessages = {
+  correct: {
+    verdict: "Bonne réponse. 🎯",
+    detail: "Le bouquetin, c'est inventé. Mais juste assez crédible pour que ça marche.",
+  },
+  wrong: {
+    verdict: "Raté. 😄",
+    detail: "Les deux autres sont vraies, oui. La montagne m'a bien eu.",
+  }
+};
+
+document.querySelectorAll('.tvf-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const chosen = parseInt(btn.dataset.index);
+    const isCorrect = chosen === FALSE_INDEX;
+
+    // Bloquer tous les boutons
+    document.querySelectorAll('.tvf-opt').forEach(b => {
+      b.disabled = true;
+      const idx = parseInt(b.dataset.index);
+      if (idx === FALSE_INDEX) {
+        b.classList.add('correct'); // le vrai faux, toujours vert
+      } else if (idx === chosen && !isCorrect) {
+        b.classList.add('wrong');   // mauvais choix en rouge
+      } else {
+        b.classList.add('true-one'); // les vraies, discrètes
+      }
+    });
+
+    const msg = isCorrect ? tvfMessages.correct : tvfMessages.wrong;
+    document.getElementById('tvfVerdict').innerHTML = msg.verdict;
+    document.getElementById('tvfDetail').textContent = msg.detail;
+    document.getElementById('tvfResult').classList.add('show');
+  });
+});
+
+/* ── COPY PSEUDO ── */
+const PSEUDO = 'leondepraesidia';
+document.getElementById('copyBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(PSEUDO).then(() => {
+    document.getElementById('copyText').textContent = 'Copié ✓';
+    document.getElementById('copyFeedback').textContent = '→ colle-le dans Discord et envoie un MP';
+    setTimeout(() => {
+      document.getElementById('copyText').textContent = 'Copier mon pseudo Discord';
+      document.getElementById('copyFeedback').textContent = '';
+    }, 3500);
+  }).catch(() => {
+    document.getElementById('copyFeedback').textContent = PSEUDO;
+  });
+});
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('on'), i * 60);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
 </body>
 </html>
